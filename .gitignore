@@ -36,3 +36,5 @@ sample/
 src/main/resources/*.so
 src/test/resources/objectDetection/*
 !src/test/resources/objectDetection/*.md
+src/test/resources/classification/*
+!src/test/resources/classification/*.md

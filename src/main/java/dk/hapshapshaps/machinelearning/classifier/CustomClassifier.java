@@ -1,31 +1,52 @@
 package dk.hapshapshaps.machinelearning.classifier;
 
+import dk.hapshapshaps.machinelearning.DependencyHandler;
 import dk.hapshapshaps.machinelearning.classifier.models.ClassifyRecognition;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
+import com.sun.imageio.plugins.png.PNGMetadata;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
-public class CustomClassifier implements AutoCloseable {
+public class CustomClassifier implements Classifier {
 
     private final Graph graph;
     private final List<String> labels;
 
     public CustomClassifier(File graphFile, File labelFile) throws IOException {
+        DependencyHandler.loadDependencies();
+
         byte[] graphBytes = Files.readAllBytes(graphFile.toPath());
         this.graph = loadGraph(graphBytes);
         this.labels = Files.readAllLines(labelFile.toPath());
     }
 
-    public ClassifyRecognition classifyImage(File image) {
+    /**
+     * Find out what known classification the image most likely resembles
+     * @param image the image to classify according to model.
+     * @return highest rated classification.
+     * @throws IOException error preparing image for classification.
+     */
+    @Override
+    public ClassifyRecognition classifyImage(BufferedImage image) throws IOException {
         Tensor<Float> imageTensor = normalizeImage(image);
 
         float[] graphResults = executeGraph(imageTensor);
@@ -43,28 +64,27 @@ public class CustomClassifier implements AutoCloseable {
         return recognition;
     }
 
-    private Tensor<Float> normalizeImage(File image) {
+    private Tensor<Float> normalizeImage(BufferedImage image) throws IOException {
 
-        byte[] imageBytes = new byte[0];
-        try {
-            imageBytes = Files.readAllBytes(image.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-//            byte[] imageBytes = ((DataBufferByte) image.getData().getDataBuffer()).getData();
-//            bgr2rgb(imageBytes);
+//        byte[] imageBytes = new byte[0];
+//        try {
+//            imageBytes = Files.readAllBytes(image.toPath());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        byte[] imageBytes = ((DataBufferByte) image.getData().getDataBuffer()).getData();
+
+        byte[] imageBytes = imageToTypedByteArray(image);
 
         try (Graph graph = new Graph()) {
             GraphBuilder builder = new GraphBuilder(graph);
 
+            // The image will be resized to fit trained model with the following specifications.
             final int Height = 299;
             final int Width = 299;
             final float mean = 0f;
             final float scale = 255f;
 
-            // Since the graph is being constructed once per execution here, we can use a constant for the
-            // input image. If the graph were to be re-used for multiple input images, a placeholder would
-            // have been more appropriate.
             final Output<String> input = builder.constant("input", imageBytes);
 
             final Output<Float> resizedImage = builder.resizeBilinear(
@@ -110,15 +130,62 @@ public class CustomClassifier implements AutoCloseable {
     }
 
     /**
-     * Converts image pixels from the type BGR to RGB
-     * @param data
+     * Converts BufferedImage into a byte array with image type meta data included.
+     * @param image
+     * @return
+     * @throws IOException a cache file might have been needed, adding meta data failed, og something different.
      */
-    private static void bgr2rgb(byte[] data) {
-        for (int i = 0; i < data.length; i += 3) {
-            byte tmp = data[i];
-            data[i] = data[i + 2];
-            data[i + 2] = tmp;
+    private byte[] imageToTypedByteArray(BufferedImage image) throws IOException {
+        PNGMetadata metadata = new PNGMetadata();
+        setDPI(metadata); // Defines DPI information for the PNG image format.
+
+        String formatName = "png";
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        for (Iterator< ImageWriter > iw = ImageIO.getImageWritersByFormatName(formatName); iw.hasNext(); ) {
+            ImageWriter writer = iw.next();
+
+            try (final ImageOutputStream stream = ImageIO.createImageOutputStream(byteArrayOutputStream)) {
+                writer.setOutput(stream);
+                ImageWriteParam writeParam = writer.getDefaultWriteParam();
+                writer.write(metadata, new IIOImage(image, null, metadata), writeParam);
+            } finally {
+                writer.dispose();
+            }
         }
+
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+        byteArrayOutputStream.close();
+
+        return byteArray;
+    }
+
+    /**
+     * Defines the dpi values for the PNG file type.
+     * @param metadata the instance to add the PNG DPI data to.
+     * @throws IIOInvalidTreeException if the tree cannot be parsed successfully using the rules of the given format.
+     */
+    private static void setDPI(IIOMetadata metadata) throws IIOInvalidTreeException {
+
+        // for PNG, it's dots per millimeter
+
+        double dotsPerMilli = 1.0 * 300 / 10 / 2.541f;
+        IIOMetadataNode horiz = new IIOMetadataNode("HorizontalPixelSize");
+        horiz.setAttribute("value", Double.toString(dotsPerMilli));
+
+        IIOMetadataNode vert = new IIOMetadataNode("VerticalPixelSize");
+        vert.setAttribute("value", Double.toString(dotsPerMilli));
+
+        IIOMetadataNode dim = new IIOMetadataNode("Dimension");
+        dim.appendChild(horiz);
+        dim.appendChild(vert);
+
+        IIOMetadataNode root = new IIOMetadataNode("javax_imageio_1.0");
+        root.appendChild(dim);
+
+        metadata.mergeTree("javax_imageio_1.0", root);
     }
 
     private Graph loadGraph(byte[] graphBytes) {

@@ -27,9 +27,8 @@ public class ManualTests {
     final static String TEST_IMAGE_DIR = "random-test-images";
     final static String TEST_IMAGE01 = "image-6.jpg";
 
-    final static String modelsDir = "objectDetection";
-    final static String graphName = "frozen_inference_graph.pb";
-    final static String labelsName = "object-detection.pbtxt";
+    final static String OBJECT_DETECTION_DIR = "objectDetection";
+    final static String CLASSIFICATION_DIR = "classification";
 
     static File imageFile01;
 
@@ -44,14 +43,9 @@ public class ManualTests {
     @Disabled("For manual debugging only.")
     public void runObjectDetection() throws IOException {
 
+        File modelFile = getObjectDetectionModel();
 
-        Path modelPath = Paths.get(modelsDir, graphName);
-        URL modelResource = Thread.currentThread().getContextClassLoader().getResource(modelPath.toString());
-        File modelFile = new File(modelResource.getFile());
-
-        Path labelsPath = Paths.get(modelsDir, labelsName);
-        URL labelsResource = Thread.currentThread().getContextClassLoader().getResource(labelsPath.toString());
-        File labelFile = new File(labelsResource.getFile());
+        File labelFile = getObjectDetectionLabels();
 
         BufferedImage image = ImageIO.read(imageFile01);
 
@@ -80,15 +74,46 @@ public class ManualTests {
     @Test
     @Disabled("For manual debugging only.")
     public void runClassification() throws IOException {
-        File modelFile = new File("/home/jacob/andet/training/docker-training-shared/classification/subs/trained-files/output_graph.pb");
-        File labelFile = new File("/home/jacob/andet/training/docker-training-shared/classification/subs/trained-files/output_labels.txt");
+        File modelFile = getClassificationModel();
+        File labelFile = getClassificationLabels();
 
-//        BufferedImage image = ImageIO.read(imageFile01);
+        BufferedImage image = ImageIO.read(imageFile01);
 
         CustomClassifier classifier = new CustomClassifier(modelFile, labelFile);
 
-        ClassifyRecognition recognition = classifier.classifyImage(imageFile01);
+        ClassifyRecognition recognition = classifier.classifyImage(image);
 
         String s = "";
+    }
+
+    private static File getObjectDetectionModel() {
+        final String graphName = "frozen_inference_graph.pb";
+        return getFile(OBJECT_DETECTION_DIR, graphName);
+    }
+
+    private static File getObjectDetectionLabels() {
+        final String labelsName = "object-detection.pbtxt";
+        return getFile(OBJECT_DETECTION_DIR, labelsName);
+    }
+
+    private static File getClassificationModel() {
+        final String graphName = "output_graph.pb";
+        return getFile(CLASSIFICATION_DIR, graphName);
+    }
+
+    private static File getClassificationLabels() {
+        final String labelsName = "output_labels.txt";
+        return getFile(CLASSIFICATION_DIR, labelsName);
+    }
+
+    private static File getFile(String dir, String fileName) {
+        Path path = Paths.get(dir, fileName);
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(path.toString());
+
+        if(resource == null) {
+            throw new RuntimeException("A needed TEST file haven't been added. The missing file is: " + path.toString());
+        }
+
+        return new File(resource.getFile());
     }
 }
