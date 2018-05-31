@@ -105,7 +105,7 @@ public class CustomObjectDetector implements ObjectDetector {
 //        width = 200;
 //        height = 200;
 
-        Tensor<UInt8> imageTensor = normalizeImage_UInt8(image, width, height);
+        Tensor<UInt8> imageTensor = normalizeImage_UInt8(image);
 
         Detection detection = executeGraph(imageTensor);
 
@@ -116,7 +116,7 @@ public class CustomObjectDetector implements ObjectDetector {
         return objectRecognitions;
     }
 
-    public Tensor<UInt8> normalizeImage_UInt8(BufferedImage image, int width, int height) {
+    public Tensor<UInt8> normalizeImage_UInt8(BufferedImage image) {
 //        int[] imageInts = new int[width * height];
 //        byte[] byteValues = new byte[width * height * 3];
 

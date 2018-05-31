@@ -33,4 +33,9 @@ public class ClassifyRecognition {
     public Float getConfidence() {
         return confidence;
     }
+
+    @Override
+    public String toString() {
+        return "Label: " + label + ", Confidence: " + (int)(confidence * 100) + "%";
+    }
 }

@@ -25,7 +25,7 @@ public class CustomClassifier implements AutoCloseable {
         this.labels = Files.readAllLines(labelFile.toPath());
     }
 
-    public ClassifyRecognition classifyImage(BufferedImage image) {
+    public ClassifyRecognition classifyImage(File image) {
         Tensor<Float> imageTensor = normalizeImage(image);
 
         float[] graphResults = executeGraph(imageTensor);
@@ -43,17 +43,20 @@ public class CustomClassifier implements AutoCloseable {
         return recognition;
     }
 
-    private Tensor<Float> normalizeImage(BufferedImage image) {
-        try(Graph graph = new Graph()) {
+    private Tensor<Float> normalizeImage(File image) {
 
-            byte[] imageBytes = ((DataBufferByte) image.getData().getDataBuffer()).getData();
-            bgr2rgb(imageBytes);
+        byte[] imageBytes = new byte[0];
+        try {
+            imageBytes = Files.readAllBytes(image.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//            byte[] imageBytes = ((DataBufferByte) image.getData().getDataBuffer()).getData();
+//            bgr2rgb(imageBytes);
 
+        try (Graph graph = new Graph()) {
             GraphBuilder builder = new GraphBuilder(graph);
 
-            // - The model was trained with images scaled to 224x224 pixels.
-            // - The colors, represented as R, G, B in 1-byte each were converted to
-            //   float using (value - Mean)/Scale.
             final int Height = 299;
             final int Width = 299;
             final float mean = 0f;
@@ -68,14 +71,14 @@ public class CustomClassifier implements AutoCloseable {
                     builder.expandDims(
                             builder.cast(builder.decodeJpeg(input, 3), Float.class),
                             builder.constant("make_batch", 0)),
-                    builder.constant("size", new int[]{Height, Width}));
+                    builder.constant("size", new int[] {Height, Width}));
 
             final Output<Float> output =
                     builder.div(
                             builder.sub(resizedImage, builder.constant("mean", mean)),
                             builder.constant("scale", scale));
             try (Session session = new Session(graph)) {
-                return session.runner().fetch(output.op().name()).run().get(0).expect(Float.class); // casts the Tensor<?> to Tensor<Float>.
+                return session.runner().fetch(output.op().name()).run().get(0).expect(Float.class); // casts Tensor<?> to Tensor<Float>.
             }
         }
     }
@@ -87,26 +90,22 @@ public class CustomClassifier implements AutoCloseable {
      */
     private float[] executeGraph(final Tensor<Float> image) {
         try (Session s = new Session(graph);
-             Tensor<Float> resultTensor =
+             Tensor<Float> result =
                      s.runner()
                              .feed("Mul", image)
                              .fetch("final_result")
                              .run()
                              .get(0)
                              .expect(Float.class)) {
-            final long[] rshape = resultTensor.shape();
-            if (resultTensor.numDimensions() != 2 || rshape[0] != 1) {
+            final long[] rshape = result.shape();
+            if (result.numDimensions() != 2 || rshape[0] != 1) {
                 throw new RuntimeException(
                         String.format(
                                 "Expected model to produce a [1 N] shaped tensor where N is the number of labels, instead it produced one with shape %s",
                                 Arrays.toString(rshape)));
             }
             int nlabels = (int) rshape[1];
-            float[] resultFloat = resultTensor.copyTo(new float[1][nlabels])[0];
-
-            resultTensor.close();
-
-            return resultFloat;
+            return result.copyTo(new float[1][nlabels])[0];
         }
     }
 

@@ -1,15 +1,16 @@
 package dk.hapshapshaps.machinelearning.classifier;
 
-import org.tensorflow.*;
+import org.tensorflow.DataType;
+import org.tensorflow.Graph;
+import org.tensorflow.Output;
+import org.tensorflow.Tensor;
 import org.tensorflow.types.UInt8;
 
 class GraphBuilder {
-    private final Graph g;
-    private final Session session;
+    private final Graph graph;
 
-    GraphBuilder(Graph g) {
-        this.g = g;
-        this.session = new Session(g);
+    GraphBuilder(Graph graph) {
+        this.graph = graph;
     }
 
     Output<Float> div(Output<Float> x, Output<Float> y) {
@@ -30,7 +31,7 @@ class GraphBuilder {
 
     <T, U> Output<U> cast(Output<T> value, Class<U> type) {
         DataType dtype = DataType.fromClass(type);
-        return g.opBuilder("Cast", "Cast")
+        return graph.opBuilder("Cast", "Cast")
                 .addInput(value)
                 .setAttr("DstT", dtype)
                 .build()
@@ -38,7 +39,7 @@ class GraphBuilder {
     }
 
     Output<UInt8> decodeJpeg(Output<String> contents, long channels) {
-        return g.opBuilder("DecodeJpeg", "DecodeJpeg")
+        return graph.opBuilder("DecodeJpeg", "DecodeJpeg")
                 .addInput(contents)
                 .setAttr("channels", channels)
                 .build()
@@ -47,7 +48,7 @@ class GraphBuilder {
 
     <T> Output<T> constant(String name, Object value, Class<T> type) {
         try (Tensor<T> t = Tensor.<T>create(value, type)) {
-            return g.opBuilder("Const", name)
+            return graph.opBuilder("Const", name)
                     .setAttr("dtype", DataType.fromClass(type))
                     .setAttr("value", t)
                     .build()
@@ -72,10 +73,10 @@ class GraphBuilder {
     }
 
     private <T> Output<T> binaryOp(String type, Output<T> in1, Output<T> in2) {
-        return g.opBuilder(type, type).addInput(in1).addInput(in2).build().<T>output(0);
+        return graph.opBuilder(type, type).addInput(in1).addInput(in2).build().<T>output(0);
     }
 
     private <T, U, V> Output<T> binaryOp3(String type, Output<U> in1, Output<V> in2) {
-        return g.opBuilder(type, type).addInput(in1).addInput(in2).build().<T>output(0);
+        return graph.opBuilder(type, type).addInput(in1).addInput(in2).build().<T>output(0);
     }
 }

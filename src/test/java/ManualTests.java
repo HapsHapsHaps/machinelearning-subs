@@ -79,15 +79,15 @@ public class ManualTests {
 
     @Test
     @Disabled("For manual debugging only.")
-    public void ruClassification() throws IOException {
+    public void runClassification() throws IOException {
         File modelFile = new File("/home/jacob/andet/training/docker-training-shared/classification/subs/trained-files/output_graph.pb");
         File labelFile = new File("/home/jacob/andet/training/docker-training-shared/classification/subs/trained-files/output_labels.txt");
 
-        BufferedImage image = ImageIO.read(imageFile01);
+//        BufferedImage image = ImageIO.read(imageFile01);
 
         CustomClassifier classifier = new CustomClassifier(modelFile, labelFile);
 
-        ClassifyRecognition recognition = classifier.classifyImage(image);
+        ClassifyRecognition recognition = classifier.classifyImage(imageFile01);
 
         String s = "";
     }
