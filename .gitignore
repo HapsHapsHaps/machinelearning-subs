@@ -35,3 +35,4 @@ src/main/resources/YOLO
 sample/
 src/main/resources/*.so
 src/test/resources/objectDetection/*
+!src/test/resources/objectDetection/*.md
