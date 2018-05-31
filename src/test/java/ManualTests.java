@@ -22,8 +22,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainTest {
-    final static Logger log = LoggerFactory.getLogger(MainTest.class);
+public class ManualTests {
+    final static Logger log = LoggerFactory.getLogger(ManualTests.class);
     final static String TEST_IMAGE_DIR = "random-test-images";
     final static String TEST_IMAGE01 = "image-6.jpg";
 
