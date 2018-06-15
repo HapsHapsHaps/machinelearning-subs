@@ -102,8 +102,6 @@ public class CustomObjectDetector implements ObjectDetector {
 
         int width = image.getWidth();
         int height = image.getHeight();
-//        width = 200;
-//        height = 200;
 
         Tensor<UInt8> imageTensor = normalizeImage_UInt8(image);
 

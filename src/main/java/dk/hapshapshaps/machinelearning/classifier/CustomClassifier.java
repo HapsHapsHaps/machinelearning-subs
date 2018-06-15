@@ -65,15 +65,6 @@ public class CustomClassifier implements Classifier {
     }
 
     private Tensor<Float> normalizeImage(BufferedImage image) throws IOException {
-
-//        byte[] imageBytes = new byte[0];
-//        try {
-//            imageBytes = Files.readAllBytes(image.toPath());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        byte[] imageBytes = ((DataBufferByte) image.getData().getDataBuffer()).getData();
-
         byte[] imageBytes = imageToTypedByteArray(image);
 
         try (Graph graph = new Graph()) {
