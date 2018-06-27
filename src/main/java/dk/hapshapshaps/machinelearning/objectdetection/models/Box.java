@@ -31,7 +31,7 @@ public class Box {
 
     public static BufferedImage drawBox(BufferedImage image, int x, int y, int width, int height) {
         Graphics2D graph = image.createGraphics();
-        graph.setColor(Color.BLACK);
+        graph.setColor(Color.GREEN);
 //        graph.fill(new Rectangle(x, y, width, height));
         graph.drawRect(x, y, width, height);
 //        graph.setStroke();
