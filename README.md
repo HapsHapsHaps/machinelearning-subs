@@ -12,9 +12,9 @@ I've also created an easy to use java library, that you can use from your own ap
 
 This entire project was done to make it possible to detect and locate the exact positions of subtitles in videos.
 
-## Object Detection Guide
-You can find the fairly detailed guide on how to prepare a dataset and train a model for Object Detection in [the training folder.](training/training-object-detection.md)
+## [Object Detection Guide](training/training-object-detection.md)
+You can find the fairly detailed guide on how to prepare a dataset and train a model for Object Detection in [the training folder.](training)
 
-## Docker containers
-Information about the customized containers, can be found in [the folder named docker.](docker/README.md)
+## [Docker containers](docker)
+Information about the customized containers, can be found in [the folder named docker.](docker)
 

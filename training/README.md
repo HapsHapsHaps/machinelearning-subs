@@ -1,6 +1,6 @@
 # Training models for object-detection and classification
 
-## Object-detection 
+## [Object Detection](training-object-detection.md)
 Training a model for object-detection is quite a bit more convoluted than just classification.
 But the advantage is knowing exactly where and what is in the image.
 

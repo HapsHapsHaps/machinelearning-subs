@@ -1,6 +1,6 @@
 # How to train a model for object-detection
-This is a quick run down on how to train a TensorFlow model for object classifiaction with images.
-This example focuses on training with two object types.
+This is a faily comprehensive run down on how to train a TensorFlow model for object detection in images.
+This example focuses on training with two object types, but is very easy to use for even more types.
 
 This project requires docker to be installed, and using the specifically customized containers.  
 You can read more about this in [the readme file in the docker folder.](../docker/README.md)
