@@ -67,7 +67,7 @@ RUN python model_builder_test.py
 # Clean up APT
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-WORKDIR /root
+WORKDIR /root/sharedfolder
 
 # IPython
 EXPOSE 8888/tcp
