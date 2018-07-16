@@ -1,4 +1,4 @@
-# Docker-TensorFlow-Object-Detection
+# Docker containers for TensorFlow Object-Detection
 TensorFlow Docker containers with Improvements and fixes for training Objekt Detection models.  
 Can also be used to train models for classification of entire images.
 

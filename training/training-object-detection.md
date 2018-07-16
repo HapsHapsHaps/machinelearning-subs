@@ -277,7 +277,6 @@ Time to use your trained model and see if your hard work has payed off..
 The entire purpose of this project were to make object detection easy with java.
 As such, there's a java application built to work with the trained model created using this guide.  
 So make sure you have Java installed and lets go!
-[](This entire project was done to make it possible to detect and locate the exact positions of subtitles in videos.)
 
 I expect you to have cloned the repository to your local machine.
 If not, well, what are you waiting for?! Get it done!
