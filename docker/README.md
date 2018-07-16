@@ -4,14 +4,60 @@ TensorFlow Docker containers with Improvements and fixes for training Objekt Det
 
 Prebuild containers can be retrieved from here: https://hub.docker.com/r/jacobpeddk/tensorflow-improved/
 
-## Build
+
+Information abut the TensorFlow containers, which these containers is based on, can be seen at the following location:  
+https://hub.docker.com/r/tensorflow/tensorflow/  
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/docker/README.md
+
+## Usage
+I'd recommend mapping a directory into the containers, so you can have the training data and results saved on the host machine.  
+This and related documents will expect the host folder with the data to be mapped to: `/root/sharedfolder`  
+
+### CPU container
+For launching the container that uses the CPU for training, use the following command:
+```
+docker run --rm -it -p 8888:8888 -p 6006:6006 -v <host path>:/root/sharedfolder:Z tensorflow-improved:latest
+```
+
+**Remember to replace \<host path> with the actual path on your host machine!**  
+Example:
+```
+docker run --rm -it -p 8888:8888 -p 6006:6006 -v /home/jacob/andet/training/docker-training-shared:/root/sharedfolder:Z tensorflow-improved:latest
+```
+
+### GPU container
+For launching the container that uses the GPU for training, use the following command:
+```
+nvidia-docker run --rm -it -p 8888:8888 -p 6006:6006 -v <host path>:/root/sharedfolder:Z tensorflow-improved:latest-gpu
+```
+For an Optimus laptop that's using Bumblebee, you can use above command after optirun. Example:
+```
+optirun nvidia-docker run --rm -it -p 8888:8888 -p 6006:6006 -v <host path>:/root/sharedfolder:Z tensorflow-improved:latest-gpu
+```
+
+**Remember to replace \<host path> with the actual path on your host machine!**  
+Example:
+```
+nvidia-docker run --rm -it -p 8888:8888 -p 6006:6006 -v /home/jacob/andet/training/docker-training-shared:/root/sharedfolder:Z tensorflow-improved:latest-gpu
+```
+
+**Be aware!** GPU training is a lot faster than CPU, but it requires an Nvidia GPU and Nvidia Cuda to be installed and working on the host machine.
+It also requires the host to have *NVIDIA Container Runtime for Docker* installed.  
+You can read more about it here: https://github.com/NVIDIA/nvidia-docker  
+You can test if it's working by running the following test container with the command below. If it doesn't throw an error, you're golden.
+```
+nvidia-docker run --rm nvidia/cuda nvidia-smi
+```
+
+
+## Build containers
 
 ### CPU
+```
 docker build -t tensorflow-improved -f Dockerfile .
+```
 
 ### GPU
-nvidia-docker build -t tensorflow-improved-gpu -f Dockerfile.gpu .
-
-#### Building on an Optimus laptop:
-optirun nvidia-docker build -t tensorflow-improved-gpu -f Dockerfile.gpu .
-
+```
+docker build -t tensorflow-improved-gpu -f Dockerfile.gpu .
+```
