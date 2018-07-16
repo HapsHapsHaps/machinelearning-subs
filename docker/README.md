@@ -1,10 +1,10 @@
-# Docker-TensorFlow-Object-Detection
+# Docker containers for TensorFlow Object-Detection
 TensorFlow Docker containers with Improvements and fixes for training Objekt Detection models.  
 Can also be used to train models for classification of entire images.
 
 
-Prebuild containers can be retrieved from here: https://hub.docker.com/r/jacobpeddk/tensorflow-improved/
-
+Prebuilt containers can be retrieved from here:  
+https://hub.docker.com/r/jacobpeddk/tensorflow-improved/
 
 Information abut the TensorFlow containers, which these containers is based on, can be seen at the following location:  
 https://hub.docker.com/r/tensorflow/tensorflow/  
@@ -50,6 +50,9 @@ You can test if it's working by running the following test container with the co
 nvidia-docker run --rm nvidia/cuda nvidia-smi
 ```
 
+### Ports
+Port 8888 is used for jupyter notebook, which is a fairly cool web based teaching tool that's part of the TensorFlow containers.
+Port 6006is used for TensorFlow Tensorboard websitet, where one can evaluate the training process.
 
 ## Build containers
 

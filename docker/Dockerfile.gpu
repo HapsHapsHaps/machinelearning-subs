@@ -69,7 +69,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /root/sharedfolder
 
-# IPython
+# Jupyter notebook
 EXPOSE 8888/tcp
 # TensorBoard
 EXPOSE 6006/tcp
